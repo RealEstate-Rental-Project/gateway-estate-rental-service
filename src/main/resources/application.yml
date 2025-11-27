@@ -1,0 +1,98 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: gateway-service
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:9000
+          jwk-set-uri: http://localhost:9000/oauth2/jwks
+
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: false
+
+      # ✅ IMPORTANT: Ajouter le filtre DedupeResponseHeader
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_UNIQUE
+
+      routes:
+        # Auth Server OAuth2
+        - id: auth-server-public
+          uri: http://localhost:9000
+          predicates:
+            - Path=/oauth2/**,/.well-known/**
+
+        # Authentication Service (MetaMask)
+        - id: auth-service-public
+          uri: lb://AUTHENTIFICATION-SERVICE
+          predicates:
+            - Path=/api/auth/**
+
+        # User Service
+        - id: user-service
+          uri: lb://USER-MANAGEMENT-SERVICE
+          predicates:
+            - Path=/api/users/**
+          filters:
+            - TokenRelay=
+
+        # Auction Service
+        - id: auction-service
+          uri: lb://AUCTION-SERVICE
+          predicates:
+            - Path=/api/auctions/**
+          filters:
+            - TokenRelay=
+
+        # Bid Service
+        - id: bid-service
+          uri: lb://BID-SERVICE
+          predicates:
+            - Path=/api/bids/**
+          filters:
+            - TokenRelay=
+
+      # CORS Global
+      globalcors:
+        add-to-simple-url-handler-mapping: true
+        cors-configurations:
+          '[/**]':
+            allowedOrigins:
+              - "http://localhost:4200"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+              - PATCH
+            allowedHeaders:
+              - "*"
+            exposedHeaders:
+              - Authorization
+              - Content-Type
+              - X-Total-Count
+            allowCredentials: true
+            maxAge: 3600
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.web.cors: DEBUG
