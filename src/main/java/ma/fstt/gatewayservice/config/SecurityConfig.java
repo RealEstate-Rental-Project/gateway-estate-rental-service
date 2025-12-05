@@ -36,7 +36,8 @@ public class SecurityConfig {
                                 "/oauth2/**",
                                 "/.well-known/**",
                                 "/actuator/health",
-                                "/actuator/info"
+                                "/actuator/info",
+                                "/actuator/env"
                         ).permitAll()
 
                         // Toutes les autres routes nécessitent une authentification JWT
