@@ -1,6 +1,6 @@
-@Library('jenkins-shared-library') _
+@Library('PrincipalPipeLine') _
 
 standardBackendPipeline(
     appName: 'gateway-service',
-    registry: 'yassinekamouss'
+    registry: 'saaymo'
 )
