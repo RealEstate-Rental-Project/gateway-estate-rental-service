@@ -7,13 +7,16 @@ spring:
   application:
     name: gateway-service
   config:
-    import: "optional:configserver:http://localhost:8888"
+    import: "optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888}"
 
 management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,prometheus,env
+        include: health,info,metrics,prometheus,env,circuitbreakers,circuitbreakerevents
+  endpoint:
+    prometheus:
+      enabled: true
   security:
     enabled: false
 
