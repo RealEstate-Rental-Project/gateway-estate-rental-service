@@ -2,6 +2,6 @@
 
 standardBackendPipeline(
     appName: 'gateway-service',
-    registry: 'yassinekamouss',
+    registry: 'saaymo',
      sonarProjectKey: 'gateway-service'
 )
