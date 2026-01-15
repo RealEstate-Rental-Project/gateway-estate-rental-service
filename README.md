@@ -18,7 +18,7 @@ flowchart LR
 	Client[Client]
 	Gateway[Gateway Service]
 	ConfigServer[Config Server]
-	ConfigRepo[config-repo-estate-rental (git)]
+	ConfigRepo["config-repo-estate-rental (git)"]
 	ServiceA[Service A]
 	ServiceB[Service B]
 	Fallback[Fallback Handler]
