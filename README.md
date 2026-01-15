@@ -19,8 +19,8 @@ flowchart LR
 	Gateway[Gateway Service]
 	ConfigServer[Config Server]
 	ConfigRepo["config-repo-estate-rental (git)"]
-	ServiceA[Service A]
-	ServiceB[Service B]
+	user-management-service[user-management-service]
+	property-service[property-service]
 	Fallback[Fallback Handler]
 
 	Client -->|HTTP request| Gateway
@@ -34,9 +34,7 @@ flowchart LR
 	ConfigRepo -->|contains| GatewayYML["gateway-service.yml"]
 	ConfigRepo -->|contains profile overrides| GatewayProfileYML["gateway-service-{profile}.yml"]
 
-	style Gateway fill:#f9f,stroke:#333,stroke-width:1px
-	style ConfigServer fill:#ff9,stroke:#333,stroke-width:1px
-	style ConfigRepo fill:#9ff,stroke:#333,stroke-width:1px
+	
 ```
 
 Configuration retrieval and precedence
@@ -92,6 +90,19 @@ These files show how routes, fallback URIs and security are wired in the gateway
 - Ensure the Spring Cloud Config Server is reachable by the gateway at startup and that the desired configuration branch for the environment exists in the `config-repo-estate-rental` repository.
 - If using a circuit-breaker implementation such as Resilience4j or Spring Cloud Circuit Breaker, make sure the circuit-breaker dependency and configuration are present in `pom.xml` and in the config repository (timeouts, sliding-window sizes, minimum calls, etc.).
 - Provide secure means for the gateway to access the config server if the config repo is private (authentication tokens or SSH keys), and ensure sensitive config values are stored securely (vault or encrypted properties) rather than in plaintext in the repo.
+
+## Hot reloading (Actuator / refresh)
+
+- You can refresh configuration at runtime without restarting the gateway by using Spring Boot Actuator and Spring Cloud Context refresh features. Typical flow:
+	1. Update configuration file in the config repository (for example `gateway-service-prod.yml`).
+	2. Push changes to the config repo (git).
+	3. Trigger a refresh on the gateway so it pulls the new configuration from the Config Server.
+
+- Minimum requirements (on the gateway):
+	- Add `spring-boot-starter-actuator` to the dependencies (if not present).
+	- Ensure Spring Cloud Context (usually present when using Spring Cloud Config client) is available so the `/actuator/refresh` endpoint applies changes to `@RefreshScope` beans.
+	- Expose the `refresh` endpoint (and any other necessary actuator endpoints) in `application.yml` or via environment variables.
+
 
 ## References
 
